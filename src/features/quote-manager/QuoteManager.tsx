@@ -214,8 +214,8 @@ export default function QuoteManager() {
   }, [store, ready, workspace]);
   useEffect(() => {
     let live = true;
-    auth()
-      .getSession()
+    Promise.resolve()
+      .then(() => auth().getSession())
       .then(async ({ data }) => {
         if (!data.session || !live) return;
         setUser(data.session.user.email || "Team member");
