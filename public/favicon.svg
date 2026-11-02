@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>Formatix</title>
+  <rect width="64" height="64" rx="13" fill="#151515"/>
+  <path d="M23 13h29l-3 8H29l-3 9h18l-3 8H23l-5 15H9z" fill="#D9A441"/>
+  <path d="M28 46h18l-3 7H25z" fill="#D9A441"/>
+</svg>
