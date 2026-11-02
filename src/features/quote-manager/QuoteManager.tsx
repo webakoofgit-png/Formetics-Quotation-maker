@@ -76,6 +76,7 @@ import {
 } from "./model";
 import { makePdf } from "./pdf";
 import LoginScreen from "./LoginScreen";
+import BrandLogo from "./BrandLogo";
 import LocalLogin, { DEMO_SESSION } from "./LocalLogin";
 
 const navigation = [
@@ -522,15 +523,7 @@ export default function QuoteManager() {
         onClick={() => go("Dashboard")}
         aria-label="Formatix Dashboard"
       >
-        <span className="brand-mark">
-          F<span />
-        </span>
-        {!collapsed && (
-          <span>
-            <b>FORMATIX</b>
-            <small>PREMIUM DETAILING STUDIO</small>
-          </span>
-        )}
+        <BrandLogo />
       </a>
       <div className="workspace-label">{!collapsed && "WORKSPACE"}</div>
       <nav aria-label="Main navigation">
@@ -1094,7 +1087,7 @@ export default function QuoteManager() {
           {view && (
             <>
               <div className="preview-brand">
-                <strong>{store.settings.company}</strong>
+                <BrandLogo source={store.settings.logo} />
                 <Badge status={view.status} />
               </div>
               <div className="details-grid">
@@ -2909,7 +2902,7 @@ function Settings({
             }}
           />
         </Field>
-        {s.logo && <img className="logo-preview" src={s.logo} alt="Studio logo" />}
+        <BrandLogo source={s.logo} className="settings-brand-logo" />
         <Field label="Bank / payment details">
           <textarea
             disabled={!admin}

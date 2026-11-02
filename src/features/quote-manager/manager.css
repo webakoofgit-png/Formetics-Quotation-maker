@@ -2764,6 +2764,67 @@ textarea:disabled {
     text-align: center;
   }
 }
+.brand-logo {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  flex-shrink: 0;
+  background: #101012;
+  border-radius: 3px;
+  line-height: 0;
+}
+.brand-logo img {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
+}
+.brand-logo-custom img {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+aside.sidebar .brand > span.brand-logo:last-child {
+  display: block;
+}
+.sidebar .brand,
+.mobile-sidebar .brand {
+  padding: 23px 17px 26px;
+  display: block;
+}
+.sidebar .brand > .brand-logo,
+.mobile-sidebar .brand > .brand-logo {
+  display: block;
+}
+.is-collapsed .sidebar .brand {
+  padding: 24px 8px;
+}
+.login-brand {
+  width: min(330px, 100%);
+}
+.preview-brand > .brand-logo {
+  width: 230px;
+  max-width: 72%;
+}
+.settings-brand-logo {
+  width: 240px;
+  max-width: 100%;
+}
+@media (max-width: 980px) {
+  .sidebar .brand {
+    padding: 24px 8px;
+  }
+  .sidebar .brand > .brand-logo {
+    display: block;
+  }
+}
+@media (max-width: 760px) {
+  .login-brand {
+    width: 210px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

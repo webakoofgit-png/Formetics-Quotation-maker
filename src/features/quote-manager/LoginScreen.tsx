@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { ShieldCheck, Sparkles, Car, ArrowUpRight } from "lucide-react";
+import BrandLogo from "./BrandLogo";
 
 export default function LoginScreen({
   checking,
@@ -16,13 +17,7 @@ export default function LoginScreen({
     <div className="app login-shell" data-ready={!checking}>
       <aside className="login-story" aria-label="Formatix studio">
         <div className="login-brand">
-          <span className="brand-mark" aria-hidden="true">
-            F<span />
-          </span>
-          <div>
-            <b>FORMATIX</b>
-            <small>PREMIUM DETAILING STUDIO</small>
-          </div>
+          <BrandLogo />
         </div>
         <div className="login-story-content">
           <span className="login-overline">YOUR STUDIO. PERFECTLY IN SYNC.</span>

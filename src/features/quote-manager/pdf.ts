@@ -1,9 +1,10 @@
 import type { Quote, Settings } from "./model";
 import { totals } from "./model";
+import { FORMATIX_LOGO, LOGO_PANEL, pdfLogo } from "./brand";
 
 export async function makePdf(q: Quote, s: Settings) {
   const { jsPDF } = await import("jspdf");
-  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const pdf = new jsPDF({ unit: "mm", format: "a4", compress: true });
   const t = totals(q.items, q.discount, q.booking);
   const amount = (p: number) =>
     "INR " +
@@ -32,18 +33,45 @@ export async function makePdf(q: Quote, s: Settings) {
   };
   pdf.setFillColor("#151515");
   pdf.rect(0, 0, 210, 45, "F");
-  if (s.logo) {
-    try {
-      const props = pdf.getImageProperties(s.logo);
-      const width = Math.min(27, (props.width / props.height) * 19);
-      pdf.addImage(s.logo, s.logo.startsWith("data:image/png") ? "PNG" : "JPEG", 20, 12, width, 19);
-    } catch {
-      /* Company name remains visible when an invalid image is supplied. */
+  try {
+    const prepared =
+      !s.logo || s.logo === FORMATIX_LOGO ? await pdfLogo() : { data: s.logo, panel: true };
+    const logo = prepared.data;
+    if (!prepared.panel) {
+      const width = 96,
+        height = (width * LOGO_PANEL.height) / LOGO_PANEL.width,
+        x = 16,
+        top = 4;
+      pdf.saveGraphicsState();
+      pdf.rect(x, top, width, height);
+      pdf.clip();
+      pdf.discardPath();
+      pdf.addImage(
+        logo,
+        "PNG",
+        x - (LOGO_PANEL.x / LOGO_PANEL.width) * width,
+        top - (LOGO_PANEL.y / LOGO_PANEL.height) * height,
+        (LOGO_PANEL.sourceWidth / LOGO_PANEL.width) * width,
+        (LOGO_PANEL.sourceHeight / LOGO_PANEL.height) * height,
+        undefined,
+        "FAST",
+      );
+      pdf.restoreGraphicsState();
+    } else {
+      const props = pdf.getImageProperties(logo),
+        scale = Math.min(96 / props.width, 34 / props.height);
+      pdf.addImage(
+        logo,
+        logo.startsWith("data:image/png") ? "PNG" : "JPEG",
+        16,
+        5,
+        props.width * scale,
+        props.height * scale,
+      );
     }
+  } catch {
+    text(s.company, 20, 23, "#D9A441", true);
   }
-  text(s.company, s.logo ? 55 : 20, 23, "#D9A441", true);
-  y = 28;
-  text("PREMIUM DETAILING STUDIO", s.logo ? 55 : 20, 7, "#cccccc");
   y = 20;
   text("QUOTATION", 152, 12, "#FAFAFA", true);
   y = 29;

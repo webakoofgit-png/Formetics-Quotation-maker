@@ -65,5 +65,6 @@ describe("Quotation financial invariants", () => {
     const doc = await makePdf(q, initialStore().settings);
     expect(doc.getNumberOfPages()).toBeGreaterThan(2);
     expect(doc.output().startsWith("%PDF-")).toBe(true);
-  });
+    expect(doc.output()).toContain("/Subtype /Image");
+  }, 15000);
 });

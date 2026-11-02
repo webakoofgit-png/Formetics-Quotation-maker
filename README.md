@@ -19,7 +19,7 @@ These are intentionally public demonstration credentials, checked in the browser
 
 `VITE_AUTH_MODE` defaults to `local`. Supabase authentication is not initialized in this mode, even if old Supabase variables are present. For the optional cloud workflow below, explicitly set `VITE_AUTH_MODE=cloud`. Only cloud mode supports registration and authenticated shared records. Cloud mode can expose an optional browser demo entry with `VITE_ENABLE_DEMO=true`; this never authorizes cloud data.
 
-No customer records or business metrics are fabricated. The illustrative catalog is editable and is **not official Formatix pricing**. The reference HTML, screenshot and official logo were not present in the supplied files. Replace demo services/prices and configure studio details before business use.
+No customer records or business metrics are fabricated. The illustrative catalog is editable and is **not official Formatix pricing**. The supplied Formatix logo is used in login, sidebar, previews, PDFs and the favicon. Its source image is preserved; layout clips the unused outer space. The original quotation HTML and screenshot were not supplied. Replace demo services/prices and configure studio details before business use.
 
 ## Enable persistent cloud mode
 
