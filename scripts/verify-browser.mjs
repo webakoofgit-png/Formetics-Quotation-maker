@@ -18,6 +18,14 @@ try {
   const response = await page.goto("http://127.0.0.1:8080/");
   assert.equal(response.status(), 200);
   await page.locator('.app[data-ready="true"]').waitFor({ timeout: 60000 });
+  await page.getByRole("heading", { name: "Welcome back." }).waitFor();
+  assert.equal(await page.getByRole("heading", { name: "The bigger picture." }).count(), 0);
+  await page.screenshot({ path: "artifacts/login-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.screenshot({ path: "artifacts/login-mobile.png", fullPage: true });
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.getByRole("button", { name: "Explore local demo", exact: true }).click();
   await page.getByRole("heading", { name: "The bigger picture." }).waitFor();
   await page.screenshot({ path: "artifacts/dashboard-desktop.png", fullPage: true });
   await page.getByRole("button", { name: "Create Quotation" }).click();

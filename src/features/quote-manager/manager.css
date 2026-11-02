@@ -2320,7 +2320,37 @@ textarea:disabled {
 .app {
   font-size: 15px;
 }
-.main-shell :is(p, small, label, th, td, input, select, textarea, h1, h2, h3, strong, b, .muted, .breadcrumbs, .eyebrow, .date-chip, .metric-top, .summary, .summary span, .app-footer, .mode-banner, .table-link, .text-btn, .pagination > span, .date-filters > span, .status, .btn) {
+.main-shell
+  :is(
+    p,
+    small,
+    label,
+    th,
+    td,
+    input,
+    select,
+    textarea,
+    h1,
+    h2,
+    h3,
+    strong,
+    b,
+    .muted,
+    .breadcrumbs,
+    .eyebrow,
+    .date-chip,
+    .metric-top,
+    .summary,
+    .summary span,
+    .app-footer,
+    .mode-banner,
+    .table-link,
+    .text-btn,
+    .pagination > span,
+    .date-filters > span,
+    .status,
+    .btn
+  ) {
   color: #111;
 }
 .main-shell input::placeholder,
@@ -2443,6 +2473,295 @@ textarea:disabled {
   }
   .quote-summary .mobile-total {
     font-size: 12px;
+  }
+}
+.login-shell {
+  display: grid;
+  grid-template-columns: minmax(360px, 1fr) minmax(440px, 1fr);
+  min-height: 100dvh;
+  background: #fafafa;
+  color: #111;
+}
+.login-story {
+  background: #151515;
+  color: #fafafa;
+  padding: 48px 60px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.login-brand b {
+  font:
+    800 28px Manrope,
+    sans-serif;
+  letter-spacing: 4px;
+  color: #fafafa;
+}
+.login-brand small {
+  display: block;
+  font-size: 8px;
+  letter-spacing: 2.4px;
+  color: #c7ad77;
+  margin-top: 5px;
+}
+.login-story-content {
+  margin: auto 0;
+  padding: 70px 0;
+}
+.login-overline {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  color: #a37b31;
+}
+.login-story h1 {
+  font:
+    650 clamp(34px, 3.6vw, 54px)/1.2 Manrope,
+    sans-serif;
+  letter-spacing: -1.8px;
+  margin: 24px 0;
+  color: #fafafa;
+}
+.login-story-content > p {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #c3c2ba;
+  max-width: 410px;
+}
+.login-features {
+  display: grid;
+  gap: 23px;
+  margin-top: 44px;
+}
+.login-features span {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #e2dfd6;
+  font-size: 14px;
+}
+.login-features svg {
+  color: #d9a441;
+  stroke-width: 1.5;
+}
+.login-story footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  color: #ad9567;
+  padding-top: 24px;
+  border-top: 1px solid #34312a;
+}
+.login-story footer span {
+  color: #aaa69b;
+  font-size: 8px;
+}
+.login-main {
+  margin: 0;
+  padding: 60px 40px 25px;
+  min-height: 100dvh;
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  margin: auto 0;
+  padding: 25px 0;
+}
+.login-emblem {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border: 1px solid #ebdfc4;
+  border-radius: 12px;
+  color: #aa8034;
+  background: #faf4e7;
+  margin-bottom: 26px;
+}
+.login-card .login-overline {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+.login-card h2 {
+  font:
+    750 34px/1.2 Manrope,
+    sans-serif;
+  letter-spacing: -1px;
+  color: #111;
+}
+.login-description {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.8;
+  margin: 13px 0 30px;
+}
+.login-card .stack {
+  gap: 20px;
+}
+.login-card .field > span {
+  font-size: 14px;
+  color: #111;
+}
+.login-card input {
+  font-size: 16px;
+  color: #111;
+  min-height: 48px;
+  padding: 12px 14px;
+  background: #fff;
+  border-color: #d9d9d3;
+}
+.login-card .btn {
+  min-height: 46px;
+  font-size: 14px;
+}
+.login-card .text-btn {
+  font-size: 13px;
+  color: #674c19;
+  line-height: 1.6;
+}
+.login-card .muted {
+  font-size: 13px;
+  color: #333;
+}
+.login-card .login-error,
+.login-error {
+  color: #8d3023;
+  font-size: 13px;
+  line-height: 1.7;
+  background: #fff1ed;
+  border: 1px solid #f0d1c8;
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin: 0;
+}
+.login-card .login-account {
+  color: #111;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.login-demo {
+  margin-top: 25px;
+  padding-top: 22px;
+  border-top: 1px solid #e5e5df;
+  text-align: center;
+}
+.login-demo button {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: 0;
+  color: #5d4a23;
+  font-size: 14px;
+}
+.login-demo small {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: #444;
+  line-height: 1.6;
+}
+.login-security {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #444;
+  font-size: 12px;
+  margin-top: 35px;
+  line-height: 1.7;
+}
+.login-security svg {
+  color: #8a733f;
+  flex-shrink: 0;
+}
+.login-main > footer {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  color: #444;
+  padding-top: 24px;
+}
+.login-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 120px;
+  font-size: 14px;
+  color: #333;
+}
+.login-loading span {
+  width: 19px;
+  height: 19px;
+  border: 2px solid #e7ddc4;
+  border-top-color: #a47a29;
+  border-radius: 50%;
+  animation: login-spin 0.9s linear infinite;
+}
+@keyframes login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 1000px) {
+  .login-story {
+    padding: 40px 30px;
+  }
+  .login-story footer {
+    flex-direction: column;
+  }
+  .login-main {
+    padding: 45px 30px 24px;
+  }
+}
+@media (max-width: 760px) {
+  .login-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .login-story {
+    min-height: 0;
+    padding: 25px;
+  }
+  .login-story-content,
+  .login-story footer {
+    display: none;
+  }
+  .login-brand b {
+    font-size: 23px;
+  }
+  .login-brand small {
+    font-size: 7px;
+  }
+  .login-main {
+    min-height: calc(100dvh - 99px);
+    padding: 28px 24px 24px;
+  }
+  .login-card {
+    padding: 15px 0;
+  }
+  .login-card h2 {
+    font-size: 30px;
+  }
+  .login-description {
+    margin-bottom: 25px;
+  }
+  .login-security {
+    font-size: 11px;
+  }
+  .login-main > footer {
+    font-size: 8px;
+    text-align: center;
   }
 }
 @media (prefers-reduced-motion: reduce) {

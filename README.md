@@ -10,14 +10,16 @@ cp .env.example .env
 npm run dev
 ```
 
-The workspace starts in clearly labeled **local demo mode**. No customer records or business metrics are fabricated. The illustrative catalog is editable and is **not official Formatix pricing**. The reference HTML, screenshot and official logo were not present in the supplied files. Replace demo services/prices and configure studio details before business use.
+The app opens on a dedicated **login screen**. The dashboard is shown only after Supabase authentication and workspace membership are loaded. A valid saved session restores the workspace automatically; signing out returns to login. Without configured Supabase access, production stays at login and shows an actionable configuration error when sign-in is attempted.
+
+Local development provides a clearly labeled **Explore local demo** button. Production hides this button unless `VITE_ENABLE_DEMO=true` is explicitly set at build time. Demo access never authorizes cloud data. No customer records or business metrics are fabricated. The illustrative catalog is editable and is **not official Formatix pricing**. The reference HTML, screenshot and official logo were not present in the supplied files. Replace demo services/prices and configure studio details before business use.
 
 ## Enable persistent cloud mode
 
 1. Apply `supabase/migrations/202611020001_formatix.sql` in the connected Supabase SQL editor or deploy it through your usual migration workflow. It adds new `formatix_*` tables without touching existing application tables.
 2. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in your deployment. Only public publishable credentials belong in the frontend. Never add a service-role key.
 3. Configure Supabase Auth email/password sign-in, email confirmation and your deployment URL.
-4. Open **Connect cloud**, create/confirm an account, sign in, then choose **Create my cloud workspace**. Cloud workspaces start empty and never silently import demo records.
+4. On the opening login screen, create/confirm an account, sign in, then choose **Create studio workspace** if this is a new studio. Existing employees need their Admin to add their registered email. Cloud workspaces start empty and never silently import demo records.
 5. Enter company details in Settings and add verified services. An Admin can add registered employees by email and assign Admin or Staff access. Each account belongs to one studio.
 
 Cloud activation was **not performed in this session**: the Lovable connection returned “This app connection requires reauthentication.” Live authentication, hosted storage and production deployment remain unverified. The migration and authorization RPCs were executed in a disposable local PostgreSQL instance during testing.

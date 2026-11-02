@@ -75,6 +75,7 @@ import {
   type Member,
 } from "./model";
 import { makePdf } from "./pdf";
+import LoginScreen from "./LoginScreen";
 
 const navigation = [
   ["Dashboard", LayoutDashboard],
@@ -169,6 +170,9 @@ export default function QuoteManager() {
     [help, setHelp] = useState(false);
   const [pdfPreview, setPdfPreview] = useState("");
   const [quoteFilter, setQuoteFilter] = useState("All statuses");
+  const [sessionChecking, setSessionChecking] = useState(true);
+  const [demoActive, setDemoActive] = useState(false);
+  const allowDemo = import.meta.env.DEV || import.meta.env["VITE_ENABLE_DEMO"] === "true";
   useEffect(
     () => () => {
       if (pdfPreview) URL.revokeObjectURL(pdfPreview);
@@ -195,27 +199,44 @@ export default function QuoteManager() {
     return () => window.removeEventListener("hashchange", navigate);
   }, []);
   useEffect(() => {
-    if (ready && quote && !workspace) {
+    if (ready && quote && !workspace && demoActive) {
       try {
         localStorage.setItem("formatix-draft-v1", JSON.stringify(quote));
       } catch {
         toast.error("Unable to preserve draft on this device.");
       }
     }
-  }, [quote, ready, workspace]);
+  }, [quote, ready, workspace, demoActive]);
   useEffect(() => {
-    if (ready && !workspace) {
+    if (ready && !workspace && demoActive) {
       try {
         localStorage.setItem("formatix-demo-v1", JSON.stringify(store));
       } catch {
         toast.error("Device storage is full. Changes may not persist.");
       }
     }
-  }, [store, ready, workspace]);
+  }, [store, ready, workspace, demoActive]);
   useEffect(() => {
     let live = true;
+    let unsubscribe = () => {};
     Promise.resolve()
-      .then(() => auth().getSession())
+      .then(() => {
+        const client = auth();
+        const { data } = client.onAuthStateChange((event) => {
+          if (event === "SIGNED_OUT" && live) {
+            setUser("");
+            setWorkspace("");
+            setDemoActive(false);
+            setStore(initialStore());
+            setQuote(blankQuote());
+            setAuthOpen(false);
+            setView(null);
+            setPdfPreview("");
+          }
+        });
+        unsubscribe = () => data.subscription.unsubscribe();
+        return client.getSession();
+      })
       .then(async ({ data }) => {
         if (!data.session || !live) return;
         setUser(data.session.user.email || "Team member");
@@ -226,9 +247,13 @@ export default function QuoteManager() {
           if (live) setCloudError(message(e));
         }
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (live) setSessionChecking(false);
+      });
     return () => {
       live = false;
+      unsubscribe();
     };
   }, []);
   function applyCloud(cloud: Awaited<ReturnType<typeof loadCloud>>) {
@@ -389,6 +414,77 @@ export default function QuoteManager() {
       ]),
     ]);
   }
+  if (!workspace && !demoActive)
+    return (
+      <>
+        <Toaster richColors position="top-right" />
+        <LoginScreen
+          checking={sessionChecking}
+          {...(allowDemo ? { onDemo: () => setDemoActive(true) } : {})}
+        >
+          {user ? (
+            <div className="stack">
+              <p className="login-account">
+                Signed in as <b>{user}</b>
+              </p>
+              <p className="login-description">
+                Your account is verified. Ask your studio Admin to add you to their workspace, or
+                create a new studio workspace.
+              </p>
+              {cloudError && (
+                <p className="login-error" role="alert">
+                  {cloudError}
+                </p>
+              )}
+              <button
+                className="btn primary"
+                disabled={busy}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    applyCloud(await createWorkspace({ ...initialStore(), services: [] }));
+                  } catch (e) {
+                    setCloudError(message(e));
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                {busy ? "Creating workspace…" : "Create studio workspace"}
+              </button>
+              <button
+                className="btn"
+                onClick={async () => {
+                  try {
+                    const { error } = await auth().signOut();
+                    if (error) throw error;
+                    setUser("");
+                    setCloudError("");
+                  } catch (e) {
+                    toast.error(message(e));
+                  }
+                }}
+              >
+                Sign in with another account
+              </button>
+            </div>
+          ) : (
+            <AuthForm
+              onLogin={async (email) => {
+                setUser(email);
+                setDemoActive(false);
+                try {
+                  applyCloud(await loadCloud());
+                  setAuthOpen(false);
+                } catch (e) {
+                  setCloudError(message(e));
+                }
+              }}
+            />
+          )}
+        </LoginScreen>
+      </>
+    );
   const sideContent = (
     <>
       <a
@@ -2862,11 +2958,13 @@ function AuthForm({ onLogin }: { onLogin: (email: string) => Promise<void> }) {
     [password, setPassword] = useState(""),
     [signup, setSignup] = useState(false),
     [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   return (
     <form
       className="stack"
       onSubmit={async (e) => {
         e.preventDefault();
+        setError("");
         setBusy(true);
         try {
           const result = signup
@@ -2877,7 +2975,12 @@ function AuthForm({ onLogin }: { onLogin: (email: string) => Promise<void> }) {
             toast.success("Account created. Check your email to confirm, then sign in.");
           else await onLogin(email);
         } catch (e) {
-          toast.error(message(e));
+          const detail = message(e);
+          setError(
+            /Missing Supabase|process is not defined/i.test(detail)
+              ? "Cloud sign-in is not configured yet. The studio administrator must add the Supabase connection settings in Vercel."
+              : detail,
+          );
         } finally {
           setBusy(false);
         }
@@ -2897,15 +3000,28 @@ function AuthForm({ onLogin }: { onLogin: (email: string) => Promise<void> }) {
           type="password"
           autoComplete={signup ? "new-password" : "current-password"}
           required
-          minLength={8}
+          minLength={signup ? 8 : 1}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
       </Field>
+      {error && (
+        <p className="login-error" role="alert">
+          {error}
+        </p>
+      )}
       <button className="btn primary" disabled={busy}>
         {busy ? "Connecting…" : signup ? "Create account" : "Sign in"}
       </button>
-      <button type="button" className="text-btn" onClick={() => setSignup((v) => !v)}>
+      <button
+        type="button"
+        className="text-btn"
+        disabled={busy}
+        onClick={() => {
+          setSignup((v) => !v);
+          setError("");
+        }}
+      >
         {signup ? "Already have an account? Sign in" : "New to Formatix? Create an account"}
       </button>
     </form>
