@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import QuoteManager from "@/features/quote-manager/QuoteManager";
-import { loadCloud } from "@/features/quote-manager/backend";
+import { auth, loadCloud } from "@/features/quote-manager/backend";
 import { initialStore } from "@/features/quote-manager/model";
 const sessionApi = vi.hoisted(() => ({
   getSession: vi.fn(),
@@ -9,7 +9,7 @@ const sessionApi = vi.hoisted(() => ({
   onAuthStateChange: vi.fn(),
 }));
 vi.mock("@/features/quote-manager/backend", () => ({
-  auth: () => sessionApi,
+  auth: vi.fn(() => sessionApi),
   loadCloud: vi.fn(),
   saveCloud: vi.fn(),
   createWorkspace: vi.fn(),
@@ -30,6 +30,9 @@ vi.mock("recharts", () => ({
 }));
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
+  vi.stubEnv("VITE_AUTH_MODE", "cloud");
+  vi.mocked(auth).mockClear();
   location.hash = "";
   sessionApi.getSession.mockResolvedValue({ data: { session: null } });
   sessionApi.onAuthStateChange.mockReturnValue({
@@ -43,6 +46,28 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 describe("Studio quotation workflow", () => {
+  it("supports the client demo login, refresh and logout without contacting Supabase", async () => {
+    vi.stubEnv("VITE_AUTH_MODE", "local");
+    render(<QuoteManager />);
+    await screen.findByLabelText("Username");
+    expect(screen.queryByText(/Create an account/)).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Username"), { target: { value: "admin" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "wrong" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("Incorrect demo");
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "Formatix@123" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(await screen.findByRole("heading", { name: "The bigger picture." })).toBeInTheDocument();
+    cleanup();
+    render(<QuoteManager />);
+    expect(await screen.findByRole("heading", { name: "The bigger picture." })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Account" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Sign out" }));
+    expect(await screen.findByLabelText("Username")).toBeInTheDocument();
+    expect(sessionStorage.getItem("formatix-client-demo-session-v1")).toBeNull();
+    expect(auth).not.toHaveBeenCalled();
+    expect(loadCloud).not.toHaveBeenCalled();
+  }, 15000);
   it("preserves an unsaved form across navigation, saves a real quote, updates status and groups customer history", async () => {
     render(<QuoteManager />);
     fireEvent.click(await screen.findByRole("button", { name: "Explore local demo" }));

@@ -13,6 +13,8 @@ const browser = await chromium.launch({
 });
 const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
 const errors = [];
+const backendRequests=[];
+page.on('request',request=>{if(new URL(request.url()).hostname.endsWith('.supabase.co'))backendRequests.push(request.url());});
 page.on("pageerror", (error) => errors.push(error.message));
 try {
   const response = await page.goto("http://127.0.0.1:8080/");
@@ -25,7 +27,9 @@ try {
   await page.screenshot({ path: "artifacts/login-mobile.png", fullPage: true });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
   await page.setViewportSize({ width: 1440, height: 1000 });
-  await page.getByRole("button", { name: "Explore local demo", exact: true }).click();
+  await page.getByLabel("Username", { exact: true }).fill("admin");
+  await page.getByLabel("Password", { exact: true }).fill("Formatix@123");
+  await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.getByRole("heading", { name: "The bigger picture." }).waitFor();
   await page.screenshot({ path: "artifacts/dashboard-desktop.png", fullPage: true });
   await page.getByRole("button", { name: "Create Quotation" }).click();
@@ -85,6 +89,7 @@ try {
   await page.getByRole("link", { name: "Dashboard", exact: true }).click();
   await page.screenshot({ path: "artifacts/dashboard-mobile.png", fullPage: true });
   assert.deepEqual(errors, []);
+  assert.deepEqual(backendRequests,[],'Client demo must not contact Supabase');
   console.log(
     "PASS: desktop/mobile quotation creation, persistence, booking status, follow-up calendar, PDF download, drawer focus, no horizontal overflow or page errors.",
   );

@@ -5,10 +5,12 @@ export default function LoginScreen({
   checking,
   children,
   onDemo,
+  local = false,
 }: {
   checking: boolean;
   children: ReactNode;
   onDemo?: () => void;
+  local?: boolean;
 }) {
   return (
     <div className="app login-shell" data-ready={!checking}>
@@ -43,7 +45,7 @@ export default function LoginScreen({
             </span>
             <span>
               <ShieldCheck size={20} />
-              Secure access for your team.
+              {local ? "Your studio, ready to demonstrate." : "Secure access for your team."}
             </span>
           </div>
         </div>
@@ -58,7 +60,9 @@ export default function LoginScreen({
           </div>
           <p className="login-overline">WELCOME TO YOUR WORKSPACE</p>
           <h2>Welcome back.</h2>
-          <p className="login-description">Sign in to manage your studio.</p>
+          <p className="login-description">
+            {local ? "Sign in to the Formatix client demo." : "Sign in to manage your studio."}
+          </p>
           {checking ? (
             <div className="login-loading" role="status">
               <span />
@@ -77,7 +81,9 @@ export default function LoginScreen({
           )}
           <p className="login-security">
             <ShieldCheck size={14} />
-            Your studio. Your team. Securely connected.
+            {local
+              ? "Browser-only demo. No server authentication or shared storage."
+              : "Your studio. Your team. Securely connected."}
           </p>
         </div>
         <footer>FORMATIX · PREMIUM DETAILING STUDIO</footer>

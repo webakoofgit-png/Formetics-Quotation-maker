@@ -10,11 +10,20 @@ cp .env.example .env
 npm run dev
 ```
 
-The app opens on a dedicated **login screen**. The dashboard is shown only after Supabase authentication and workspace membership are loaded. A valid saved session restores the workspace automatically; signing out returns to login. Without configured Supabase access, production stays at login and shows an actionable configuration error when sign-in is attempted.
+The app opens on a dedicated **client demo login screen**. The default mode works on Vercel and locally **without any Supabase connection or registration**.
 
-Local development provides a clearly labeled **Explore local demo** button. Production hides this button unless `VITE_ENABLE_DEMO=true` is explicitly set at build time. Demo access never authorizes cloud data. No customer records or business metrics are fabricated. The illustrative catalog is editable and is **not official Formatix pricing**. The reference HTML, screenshot and official logo were not present in the supplied files. Replace demo services/prices and configure studio details before business use.
+- Username: `admin`
+- Password: `Formatix@123`
+
+These are intentionally public demonstration credentials, checked in the browser. They are not secure production authentication. The demo remembers access in the current tab using session storage, keeps saved records in browser-local storage, and offers Sign out in Account. Different browsers/devices do not share records. Download PDFs to attach manually in WhatsApp; this mode does not host PDF links.
+
+`VITE_AUTH_MODE` defaults to `local`. Supabase authentication is not initialized in this mode, even if old Supabase variables are present. For the optional cloud workflow below, explicitly set `VITE_AUTH_MODE=cloud`. Only cloud mode supports registration and authenticated shared records. Cloud mode can expose an optional browser demo entry with `VITE_ENABLE_DEMO=true`; this never authorizes cloud data.
+
+No customer records or business metrics are fabricated. The illustrative catalog is editable and is **not official Formatix pricing**. The reference HTML, screenshot and official logo were not present in the supplied files. Replace demo services/prices and configure studio details before business use.
 
 ## Enable persistent cloud mode
+
+This is optional and is **not needed for the client demo**. Enable it only by explicitly setting `VITE_AUTH_MODE=cloud`.
 
 1. Apply `supabase/migrations/202611020001_formatix.sql` in the connected Supabase SQL editor or deploy it through your usual migration workflow. It adds new `formatix_*` tables without touching existing application tables.
 2. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in your deployment. Only public publishable credentials belong in the frontend. Never add a service-role key.

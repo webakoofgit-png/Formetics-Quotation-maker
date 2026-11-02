@@ -76,6 +76,7 @@ import {
 } from "./model";
 import { makePdf } from "./pdf";
 import LoginScreen from "./LoginScreen";
+import LocalLogin, { DEMO_SESSION } from "./LocalLogin";
 
 const navigation = [
   ["Dashboard", LayoutDashboard],
@@ -172,6 +173,7 @@ export default function QuoteManager() {
   const [quoteFilter, setQuoteFilter] = useState("All statuses");
   const [sessionChecking, setSessionChecking] = useState(true);
   const [demoActive, setDemoActive] = useState(false);
+  const localMode = import.meta.env["VITE_AUTH_MODE"] !== "cloud";
   const allowDemo = import.meta.env.DEV || import.meta.env["VITE_ENABLE_DEMO"] === "true";
   useEffect(
     () => () => {
@@ -217,6 +219,18 @@ export default function QuoteManager() {
     }
   }, [store, ready, workspace, demoActive]);
   useEffect(() => {
+    if (localMode) {
+      try {
+        if (sessionStorage.getItem(DEMO_SESSION) === "active") {
+          setDemoActive(true);
+          setUser("Demo Admin");
+        }
+      } catch {
+        /* A fresh login still works if session storage is unavailable. */
+      }
+      setSessionChecking(false);
+      return;
+    }
     let live = true;
     let unsubscribe = () => {};
     Promise.resolve()
@@ -340,7 +354,9 @@ export default function QuoteManager() {
         return;
       }
       if (!workspace) {
-        toast.info("Sign in to cloud mode for secure PDF links. PDF downloads work in demo mode.");
+        toast.info(
+          "Download the PDF and attach it in WhatsApp. This browser-only demo does not host public PDF links.",
+        );
         return;
       }
       setBusy(true);
@@ -420,9 +436,22 @@ export default function QuoteManager() {
         <Toaster richColors position="top-right" />
         <LoginScreen
           checking={sessionChecking}
-          {...(allowDemo ? { onDemo: () => setDemoActive(true) } : {})}
+          local={localMode}
+          {...(!localMode && allowDemo ? { onDemo: () => setDemoActive(true) } : {})}
         >
-          {user ? (
+          {localMode ? (
+            <LocalLogin
+              onLogin={() => {
+                try {
+                  sessionStorage.setItem(DEMO_SESSION, "active");
+                } catch {
+                  /* Keep the current tab usable without persistence. */
+                }
+                setUser("Demo Admin");
+                setDemoActive(true);
+              }}
+            />
+          ) : user ? (
             <div className="stack">
               <p className="login-account">
                 Signed in as <b>{user}</b>
@@ -646,7 +675,7 @@ export default function QuoteManager() {
               ? "Connected to secure cloud workspace"
               : "DEMO WORKSPACE · Browser storage · Illustrative catalog prices"}
             <button onClick={() => setAuthOpen(true)}>
-              {workspace ? "Account" : "Connect cloud"}
+              {localMode || workspace ? "Account" : "Connect cloud"}
               <ArrowUpRight size={13} />
             </button>
           </div>
@@ -1135,7 +1164,37 @@ export default function QuoteManager() {
           />
         </DialogContent>
       </Dialog>
-      <Dialog open={authOpen} onOpenChange={setAuthOpen}>
+      <Dialog open={authOpen && localMode} onOpenChange={setAuthOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Demo account</DialogTitle>
+            <DialogDescription>Signed in as admin · Browser-only client demo</DialogDescription>
+          </DialogHeader>
+          <p className="muted">
+            Records stay in this browser. Signing out keeps saved quotations, customers and settings
+            on this device.
+          </p>
+          <button
+            className="btn"
+            onClick={() => {
+              try {
+                sessionStorage.removeItem(DEMO_SESSION);
+              } catch {
+                /* Clear in-memory access even if storage is unavailable. */
+              }
+              setDemoActive(false);
+              setUser("");
+              setAuthOpen(false);
+              setView(null);
+              setPdfPreview("");
+            }}
+          >
+            <LogOut size={16} />
+            Sign out
+          </button>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={authOpen && !localMode} onOpenChange={setAuthOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>{workspace ? "Your cloud workspace" : "Connect your studio"}</DialogTitle>
@@ -1242,7 +1301,11 @@ export default function QuoteManager() {
               Create quotations with tax-inclusive prices. GST is extracted at 18% after discount.
             </li>
             <li>Record bookings, schedule follow-ups and track results.</li>
-            <li>Connect cloud for team access and shareable PDF links.</li>
+            <li>
+              {localMode
+                ? "Download a quotation PDF to attach manually in WhatsApp. Records stay in this browser."
+                : "Connect cloud for team access and shareable PDF links."}
+            </li>
           </ol>
           <p className="muted">
             Booking amounts are recorded advances, not a verified payment ledger.
@@ -2902,7 +2965,7 @@ function Settings({
         ))}
         {!cloud && (
           <div className="demo-note">
-            Staff management requires cloud sign-in. Demo role: Admin.
+            Team permissions are unavailable in this browser-only demo. Demo role: Admin.
           </div>
         )}
         {admin && cloud && (
